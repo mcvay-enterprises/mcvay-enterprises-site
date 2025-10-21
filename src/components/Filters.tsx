@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 
 interface FiltersProps {
@@ -33,8 +32,8 @@ const CATEGORIES = [
 
 const PRICING_OPTIONS = [
   'Free tier available',
-  'Starting at $149-499/month',
-  'Starting at $500-999/month',
+  '$49-299/month',
+  '$300-699/month',
   'Enterprise',
 ];
 
@@ -56,6 +55,7 @@ export default function Filters({ onFilterChange }: FiltersProps) {
     compliance: [],
     searchQuery: '',
   });
+
   const [showCategoryFilters, setShowCategoryFilters] = useState(true);
   const [showPricingFilters, setShowPricingFilters] = useState(true);
   const [showComplianceFilters, setShowComplianceFilters] = useState(true);
@@ -116,7 +116,10 @@ export default function Filters({ onFilterChange }: FiltersProps) {
 
       {/* Search */}
       <div className="mb-6">
-        <label htmlFor="search" className="block text-sm font-semibold text-gray-700 mb-2">
+        <label
+          className="block text-sm font-semibold text-gray-700 mb-2"
+          htmlFor="search"
+        >
           Search
         </label>
         <input
@@ -144,13 +147,21 @@ export default function Filters({ onFilterChange }: FiltersProps) {
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
         </button>
         {showCategoryFilters && (
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {CATEGORIES.map((category) => (
-              <label key={category} className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded">
+              <label
+                key={category}
+                className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded"
+              >
                 <input
                   type="checkbox"
                   checked={filters.categories.includes(category)}
@@ -179,13 +190,21 @@ export default function Filters({ onFilterChange }: FiltersProps) {
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
         </button>
         {showPricingFilters && (
           <div className="space-y-2">
             {PRICING_OPTIONS.map((option) => (
-              <label key={option} className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded">
+              <label
+                key={option}
+                className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded"
+              >
                 <input
                   type="checkbox"
                   checked={filters.pricing.includes(option)}
@@ -214,13 +233,21 @@ export default function Filters({ onFilterChange }: FiltersProps) {
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
         </button>
         {showComplianceFilters && (
           <div className="space-y-2">
             {COMPLIANCE_TAGS.map((tag) => (
-              <label key={tag} className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded">
+              <label
+                key={tag}
+                className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded"
+              >
                 <input
                   type="checkbox"
                   checked={filters.compliance.includes(tag)}
