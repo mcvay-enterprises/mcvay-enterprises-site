@@ -1,9 +1,10 @@
 'use client';
-
 import { useState, useMemo } from 'react';
 import { tools } from '@/data/tools';
 import ToolCard from '@/components/ToolCard';
 import Filters, { FilterState } from '@/components/Filters';
+
+type SortOption = 'name' | 'price-asc' | 'price-desc' | 'popularity' | 'recently-added';
 
 export default function AIToolsPage() {
   const [filters, setFilters] = useState<FilterState>({
@@ -12,6 +13,8 @@ export default function AIToolsPage() {
     compliance: [],
     searchQuery: '',
   });
+
+  const [sortBy, setSortBy] = useState<SortOption>('name');
 
   const filteredTools = useMemo(() => {
     return tools.filter((tool) => {
@@ -34,32 +37,38 @@ export default function AIToolsPage() {
         if (!hasMatchingCategory) return false;
       }
 
-      // Pricing filter
+      // Pricing filter - Updated for new pricing buckets
       if (filters.pricing.length > 0) {
         const matchesPricing = filters.pricing.some((pricingOption) => {
           if (pricingOption === 'Free tier available') {
             return tool.pricing.toLowerCase().includes('free');
-          } else if (pricingOption === 'Starting at $149-499/month') {
+          } else if (pricingOption === '$49-299/month') {
+            // Check for prices in $49-299 range
             return (
+              tool.pricing.includes('$49') ||
+              tool.pricing.includes('$99') ||
               tool.pricing.includes('$149') ||
               tool.pricing.includes('$199') ||
-              tool.pricing.includes('$299') ||
+              tool.pricing.includes('$249') ||
+              tool.pricing.includes('$299')
+            );
+          } else if (pricingOption === '$300-699/month') {
+            // Check for prices in $300-699 range
+            return (
+              tool.pricing.includes('$349') ||
               tool.pricing.includes('$399') ||
               tool.pricing.includes('$449') ||
-              tool.pricing.includes('$499')
-            );
-          } else if (pricingOption === 'Starting at $500-999/month') {
-            return (
+              tool.pricing.includes('$499') ||
+              tool.pricing.includes('$549') ||
               tool.pricing.includes('$599') ||
-              tool.pricing.includes('$699') ||
-              tool.pricing.includes('$799') ||
-              tool.pricing.includes('$899') ||
-              tool.pricing.includes('$999')
+              tool.pricing.includes('$649') ||
+              tool.pricing.includes('$699')
             );
           } else if (pricingOption === 'Enterprise') {
             return (
               tool.pricing.toLowerCase().includes('enterprise') ||
               tool.pricing.toLowerCase().includes('contact') ||
+              tool.pricing.toLowerCase().includes('custom') ||
               tool.pricing.includes('$1,') // Catches $1,xxx
             );
           }
@@ -80,8 +89,40 @@ export default function AIToolsPage() {
     });
   }, [filters]);
 
-  const featuredTools = filteredTools.filter((tool) => tool.featured);
-  const regularTools = filteredTools.filter((tool) => !tool.featured);
+  // Extract numeric price for sorting
+  const extractPrice = (pricing: string): number => {
+    const match = pricing.match(/\$(\d+)/);
+    if (match) return parseInt(match[1]);
+    if (pricing.toLowerCase().includes('enterprise') || pricing.toLowerCase().includes('contact')) {
+      return 999999; // Enterprise pricing goes last
+    }
+    if (pricing.toLowerCase().includes('free')) return 0;
+    return 999999;
+  };
+
+  // Sort filtered tools
+  const sortedTools = useMemo(() => {
+    const sorted = [...filteredTools];
+
+    switch (sortBy) {
+      case 'price-asc':
+        return sorted.sort((a, b) => extractPrice(a.pricing) - extractPrice(b.pricing));
+      case 'price-desc':
+        return sorted.sort((a, b) => extractPrice(b.pricing) - extractPrice(a.pricing));
+      case 'popularity':
+        // Placeholder - prioritize featured tools for now
+        return sorted.sort((a, b) => (a.featured === b.featured ? 0 : a.featured ? -1 : 1));
+      case 'recently-added':
+        // Placeholder - reverse order for now (assuming last added is at end)
+        return sorted.reverse();
+      case 'name':
+      default:
+        return sorted.sort((a, b) => a.name.localeCompare(b.name));
+    }
+  }, [filteredTools, sortBy]);
+
+  const featuredTools = sortedTools.filter((tool) => tool.featured);
+  const regularTools = sortedTools.filter((tool) => !tool.featured);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -109,12 +150,31 @@ export default function AIToolsPage() {
 
           {/* Tools Grid */}
           <main className="flex-1">
-            {/* Results Count */}
-            <div className="mb-6">
+            {/* Results Count and Sort Controls */}
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <p className="text-gray-600">
-                Showing <span className="font-semibold">{filteredTools.length}</span> of{' '}
+                Showing <span className="font-semibold">{sortedTools.length}</span> of{' '}
                 <span className="font-semibold">{tools.length}</span> tools
               </p>
+              
+              {/* Sort Dropdown */}
+              <div className="flex items-center gap-2">
+                <label htmlFor="sort" className="text-sm font-medium text-gray-700">
+                  Sort by:
+                </label>
+                <select
+                  id="sort"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as SortOption)}
+                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                >
+                  <option value="name">Name</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="popularity">Popularity</option>
+                  <option value="recently-added">Recently Added</option>
+                </select>
+              </div>
             </div>
 
             {/* Featured Tools */}
@@ -146,7 +206,7 @@ export default function AIToolsPage() {
             )}
 
             {/* No Results */}
-            {filteredTools.length === 0 && (
+            {sortedTools.length === 0 && (
               <div className="text-center py-12">
                 <svg
                   className="mx-auto h-12 w-12 text-gray-400"
