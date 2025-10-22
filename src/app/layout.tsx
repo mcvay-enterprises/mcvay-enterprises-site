@@ -1,10 +1,22 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Lato, Montserrat } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const heading = Montserrat({
+  subsets: ['latin'],
+  weight: ['500', '600', '700'],
+  variable: '--font-heading',
+  display: 'swap',
+})
+
+const body = Lato({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-body',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: {
@@ -39,8 +51,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className="flex min-h-screen flex-col">
+    <html lang="en" className={`${heading.variable} ${body.variable}`}>
+      <body className="flex min-h-screen flex-col bg-neutral-25 text-ink antialiased">
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
